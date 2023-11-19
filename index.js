@@ -1,10 +1,12 @@
 "use strict";
 
-// Selecting DOM elements //////////////////////////////////////////////////////////////////
+// Selecting DOM elements
 const searchBtn = document.querySelector(".search");
 const inputValue = document.querySelector(".inputText");
 // The main container of the country details, in which the data will be inserted
 const container = document.querySelector(".container");
+// The Array to store already searched countries
+const searchedCountries = [];
 
 const renderCountry = (data) => {
   let html = `<article class = "country">
@@ -24,17 +26,28 @@ const renderCountry = (data) => {
 };
 
 const getCountryData = function (countryName) {
+  if (searchedCountries.includes(countryName.toLowerCase())) {
+    container.style.opacity = "1";
+    return;
+  }
   fetch(`https://restcountries.com/v3.1/name/${countryName}?fullText=true`)
     .then((response) => response.json())
     .then(([data]) => {
       console.log(data);
       renderCountry(data);
+      searchedCountries.push(countryName.toLowerCase());
+    })
+    .catch((err) => console.log(err))
+    .finally(() => {
+      container.style.opacity = "1";
     });
 };
 
 searchBtn.addEventListener("click", (e) => {
   e.preventDefault();
-  console.log(typeof inputValue.value);
-  getCountryData(inputValue.value);
-  inputValue.value = "";
+  container.style.opacity = "0";
+  setTimeout(() => {
+    getCountryData(inputValue.value);
+    inputValue.value = "";
+  }, 500);
 });
